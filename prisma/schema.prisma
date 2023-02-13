@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model airports {
+  id                                       Int       @id @default(autoincrement())
+  code                                     String?
+  city                                     String?
+  origins flights[] @relation("flights_destination_idToairports")
+  desinations      flights[] @relation("flights_origin_idToairports")
+}
+
+model flights {
+  id                                        Int          @id @default(autoincrement())
+  origin_id                                 Int?
+  destination_id                            Int?
+  duration                                  Int?
+  origin airports?    @relation("flights_destination_idToairports", fields: [origin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  destination      airports?    @relation("flights_origin_idToairports", fields: [destination_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  passengers                                passengers[]
+}
+
+model passengers {
+  id        Int      @id @default(autoincrement())
+  person_id Int?
+  flight_id Int?
+  flights   flights? @relation(fields: [flight_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  people    people?  @relation(fields: [person_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model people {
+  id         Int          @id @default(autoincrement())
+  first      String?
+  last       String?
+  passengers passengers[]
+}
